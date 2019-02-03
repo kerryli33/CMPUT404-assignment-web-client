@@ -105,6 +105,8 @@ class HTTPClient(object):
         host,port,path = self.get_host_port(url)
         if port == None:
             port = 80
+        if len(path) == 0:
+            path= '/'
         self.connect(host,port)
         payload = """GET {PATH} HTTP/1.1
 Host: {HOST}
@@ -112,6 +114,7 @@ Host: {HOST}
 
 """.format(PATH=path,HOST=host)
         self.sendall(payload)
+        print(payload)
         data = self.recvall(self.socket)
         header = self.get_headers(data)
         code = self.get_code(header.splitlines()[0])
@@ -127,7 +130,7 @@ Host: {HOST}
         content = "Hellooooo"
         if args!=None:
             content = urllib.parse.urlencode(args,True)
-        #length = int(sys.getsizeof(content))
+        #length = int(sys.getsizeof(content))-1
         length=0
         payload = """POST {PATH} HTTP/1.1
 Host: {HOST}
