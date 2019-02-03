@@ -32,22 +32,49 @@ class HTTPResponse(object):
         self.code = code
         self.body = body
 
+    
+
 class HTTPClient(object):
-    #def get_host_port(self,url):
+    
+    def get_host_port(self,url):
+        info = urllib.parse.urlparse(url)
+        port = info.port
+        path = info.path
+        host = info.hostname
+        return (host,port,path)
 
     def connect(self, host, port):
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.connect((host, port))
-        return None
+        try:
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.socket.connect((host, port))
+        except:
+            self.close()
 
     def get_code(self, data):
-        return None
+        return data.split(" ")[1]
 
     def get_headers(self,data):
-        return None
+        endHeaders = False
+        headers = ""
+        for line in data.splitlines():
+            if line == "":
+                endHeaders = True
+            if not endHeaders:
+                headers += line+"\n"
+
+        return headers
 
     def get_body(self, data):
-        return None
+        isBody = False
+        body = ""
+        for line in data.splitlines():
+            if line == "":
+                isBody = True
+
+            if isBody:
+                body += line+"\n"
+         
+        return body
     
     def sendall(self, data):
         self.socket.sendall(data.encode('utf-8'))
@@ -59,23 +86,63 @@ class HTTPClient(object):
     def recvall(self, sock):
         buffer = bytearray()
         done = False
-        while not done:
-            part = sock.recv(1024)
-            if (part):
-                buffer.extend(part)
-            else:
-                done = not part
+        try:
+            while not done:
+                part = sock.recv(1024)
+                if (part):
+                    buffer.extend(part)
+                else:
+                    done = not part
+        except Exception as e:
+            print(e)
+            pass
+        finally:
+            self.close()
+
         return buffer.decode('utf-8')
 
     def GET(self, url, args=None):
-        code = 500
-        body = ""
-        return HTTPResponse(code, body)
+        host,port,path = self.get_host_port(url)
+        if port == None:
+            port = 80
+        self.connect(host,port)
+        payload = """GET {PATH} HTTP/1.1
+Host: {HOST}
+
+
+""".format(PATH=path,HOST=host)
+        self.sendall(payload)
+        data = self.recvall(self.socket)
+        header = self.get_headers(data)
+        code = self.get_code(header.splitlines()[0])
+        body = self.get_body(data)
+        resp = HTTPResponse(int(code), body)
+        print(resp)
+        return resp
+
 
     def POST(self, url, args=None):
-        code = 500
-        body = ""
-        return HTTPResponse(code, body)
+        host,port,path = self.get_host_port(url)
+        self.connect(host,port)
+        content = "Hellooooo"
+        if args!=None:
+            content = urllib.parse.urlencode(args,True)
+        #length = int(sys.getsizeof(content))
+        length=0
+        payload = """POST {PATH} HTTP/1.1
+Host: {HOST}
+Content-Type: application/x-www-form-urlencoded
+Content-Length: {LENGTH}
+Connection: keep-alive
+
+{CONTENT}
+""".format(PATH=path,HOST=host,LENGTH=length,CONTENT=content)
+        self.sendall(payload)
+        print(payload)
+        data = self.recvall(self.socket)
+        code = self.get_code(data)
+        body = self.get_body(data)
+        return HTTPResponse(int(code), body)
 
     def command(self, url, command="GET", args=None):
         if (command == "POST"):
