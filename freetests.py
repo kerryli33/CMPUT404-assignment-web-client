@@ -230,6 +230,7 @@ class TestHTTPClient(unittest.TestCase):
                             req.code == 302,
                             "Code: %s for %s" % (req.code, url))
             if (req.code == 200):
+                print("WE IN HERE")
                 self.assertTrue(req.body.find("DOCTYPE")>=0 or 
                                 req.body.find("<body")>=0 , 
                                 "%s Data: [%s] " % (url,req.body))

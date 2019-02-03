@@ -107,6 +107,7 @@ class HTTPClient(object):
             port = 80
         if len(path) == 0:
             path= '/'
+        #print("ARGS: "+ args)
         self.connect(host,port)
         payload = """GET {PATH} HTTP/1.1
 Host: {HOST}
@@ -116,10 +117,12 @@ Host: {HOST}
         self.sendall(payload)
         print(payload)
         data = self.recvall(self.socket)
+        print("DATA:" +data)
         header = self.get_headers(data)
         code = self.get_code(header.splitlines()[0])
         body = self.get_body(data)
         resp = HTTPResponse(int(code), body)
+        print("CODE: "+code+ "FOR "+host)
         print(resp)
         return resp
 
@@ -130,8 +133,7 @@ Host: {HOST}
         content = "Hellooooo"
         if args!=None:
             content = urllib.parse.urlencode(args,True)
-        #length = int(sys.getsizeof(content))-1
-        length=0
+        length = len(content)
         payload = """POST {PATH} HTTP/1.1
 Host: {HOST}
 Content-Type: application/x-www-form-urlencoded
@@ -139,15 +141,21 @@ Content-Length: {LENGTH}
 Connection: keep-alive
 
 {CONTENT}
-""".format(PATH=path,HOST=host,LENGTH=length,CONTENT=content)
+""".format(PATH=path,
+            HOST=host,
+            LENGTH=length,
+            CONTENT=content)
         self.sendall(payload)
-        print(payload)
         data = self.recvall(self.socket)
         code = self.get_code(data)
         body = self.get_body(data)
-        return HTTPResponse(int(code), body)
+        resp = HTTPResponse(int(code), body)
+        print("CODE: "+ code)
+        print(resp)
+        return resp
 
     def command(self, url, command="GET", args=None):
+        #print("URL: "+ str(url)+'\tcommand: ' + str(command)+"args: "+str(args))
         if (command == "POST"):
             return self.POST( url, args )
         else:
@@ -156,10 +164,15 @@ Connection: keep-alive
 if __name__ == "__main__":
     client = HTTPClient()
     command = "GET"
-    if (len(sys.argv) <= 1):
+    #print("LEN: "+ str(len(sys.argv)))
+    if (len(sys.argv) <= 2):
         help()
         sys.exit(1)
     elif (len(sys.argv) == 3):
         print(client.command( sys.argv[2], sys.argv[1] ))
     else:
-        print(client.command( sys.argv[1] ))
+        args = []
+        i=3
+        for i in len(sys.argv):
+            args.append(sys.arv[i])
+        print(client.command( sys.argv[2], sys.argv[1], args ))
