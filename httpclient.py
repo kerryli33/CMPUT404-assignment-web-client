@@ -115,14 +115,12 @@ Host: {HOST}
 
 """.format(PATH=path,HOST=host)
         self.sendall(payload)
-        print(payload)
         data = self.recvall(self.socket)
-        print("DATA:" +data)
         header = self.get_headers(data)
         code = self.get_code(header.splitlines()[0])
         body = self.get_body(data)
         resp = HTTPResponse(int(code), body)
-        print("CODE: "+code+ "FOR "+host)
+        #print("CODE: "+code+ "FOR "+host)
         print(resp)
         return resp
 
@@ -150,7 +148,6 @@ Connection: keep-alive
         code = self.get_code(data)
         body = self.get_body(data)
         resp = HTTPResponse(int(code), body)
-        print("CODE: "+ code)
         print(resp)
         return resp
 
@@ -164,7 +161,6 @@ Connection: keep-alive
 if __name__ == "__main__":
     client = HTTPClient()
     command = "GET"
-    #print("LEN: "+ str(len(sys.argv)))
     if (len(sys.argv) <= 2):
         help()
         sys.exit(1)
