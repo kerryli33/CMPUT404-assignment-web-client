@@ -109,11 +109,16 @@ class HTTPClient(object):
             path= '/'
         #print("ARGS: "+ args)
         self.connect(host,port)
+        ua = "Mozilla/5.0 (X11; Linux i686; rv:60.0) Gecko/20100101 Firefox/60.0"
         payload = """GET {PATH} HTTP/1.1
+User-Agent: {UA}
 Host: {HOST}
+Accept: */*
+Connection: close
 
 
-""".format(PATH=path,HOST=host)
+
+""".format(PATH=path,UA=ua,HOST=host)
         self.sendall(payload)
         data = self.recvall(self.socket)
         header = self.get_headers(data)

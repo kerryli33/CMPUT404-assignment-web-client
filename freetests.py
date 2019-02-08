@@ -216,7 +216,8 @@ class TestHTTPClient(unittest.TestCase):
             "http://www.cs.ualberta.ca/",
             "http://softwareprocess.es/static/SoftwareProcess.es.html",
             "http://c2.com/cgi/wiki?CommonLispHyperSpec",
-            "http://slashdot.org"
+            "http://slashdot.org",
+            "http://www.google.com/"
             ]
         for url in urls:
             try:
