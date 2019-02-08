@@ -121,7 +121,7 @@ Host: {HOST}
         body = self.get_body(data)
         resp = HTTPResponse(int(code), body)
         #print("CODE: "+code+ "FOR "+host)
-        print(resp)
+        print(resp.body)
         return resp
 
 
@@ -148,7 +148,7 @@ Connection: keep-alive
         code = self.get_code(data)
         body = self.get_body(data)
         resp = HTTPResponse(int(code), body)
-        print(resp)
+        print(resp.body)
         return resp
 
     def command(self, url, command="GET", args=None):
