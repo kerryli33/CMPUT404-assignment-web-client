@@ -136,16 +136,20 @@ Connection: close
         content = "Hellooooo"
         if args!=None:
             content = urllib.parse.urlencode(args,True)
-        length = len(content)
+        length = len(content) 
+        ua = "Mozilla/5.0 (X11; Linux i686; rv:60.0) Gecko/20100101 Firefox/60.0"
         payload = """POST {PATH} HTTP/1.1
 Host: {HOST}
+User-Agent: {UA}
 Content-Type: application/x-www-form-urlencoded
 Content-Length: {LENGTH}
-Connection: keep-alive
+Connection: close
+Accept: */*
 
 {CONTENT}
 """.format(PATH=path,
             HOST=host,
+            UA=ua,
             LENGTH=length,
             CONTENT=content)
         self.sendall(payload)
